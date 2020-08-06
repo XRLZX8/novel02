@@ -1,0 +1,183 @@
+var bookUserName=getCookie("member_username");
+function getCookie(c_name){
+    if (document.cookie.length>0){
+        c_start=document.cookie.indexOf(c_name + "=");
+        if (c_start!=-1){ 
+            c_start=c_start + c_name.length+1;
+            c_end=document.cookie.indexOf(";",c_start);
+            if (c_end==-1) c_end=document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        } 
+    }
+    return "";
+}
+function setCookie(c_name,value,expiredays){
+    var exdate=new Date()
+    exdate.setDate(exdate.getDate()+365)
+    document.cookie=c_name+ "=" +escape(value)+";expires="+exdate.toGMTString()+";path=/";
+}
+
+function getCookie(c_name){
+    if (document.cookie.length>0){
+        c_start=document.cookie.indexOf(c_name + "=");
+        if (c_start!=-1){ 
+            c_start=c_start + c_name.length+1;
+            c_end=document.cookie.indexOf(";",c_start);
+            if (c_end==-1) c_end=document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        } 
+    }
+    return "";
+}
+
+function delCookie(name){
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval=getCookie(name);
+    document.cookie= name + "=;expires="+exp.toGMTString();
+}
+/* base */
+function addHit(id){
+	if(typeof(Storage) !== "undefined") {
+		if (sessionStorage.bookid!=id) {
+			$.ajax({url:"/hit.php?id="+id,async:true});
+			sessionStorage.bookid = id;
+		}
+	}
+}
+function login(){
+	document.writeln('<div class="ywtop"><div class="ywtop_con"><div class="ywtop_sethome"><a onclick="this.style.behavior=\'url(#default#homepage)\';this.setHomePage(\'http://www.biqubao.com\');"  href="#">将本站设为首页</a></div>');
+	document.writeln('<div class="ywtop_addfavorite"><a href="javascript:window.external.addFavorite(\'http://www.biqubao.com\',\'笔趣阁_书友最值得收藏的网络小说阅读网\')">收藏笔趣阁</a></div>');
+	document.writeln('<div class="nri">');
+	if (bookUserName.length > 0) {
+		document.write('Hi,'+bookUserName+'??<a href="/bookcase.php" target="_top">我的书架</a> | <a href="/passwd.php" target="_top">密码修改</a> | <a href="/logout.php" target="_self">退出登录</a>?');
+	}
+	else {
+		document.write('<form id="mylogin" action=""><div class="cc"><div class="txt">账号：</div><div class="inp"><input type="text" name="username" id="username"></div></div><div class="cc"><div class="txt">密码：</div><div class="inp"><input type="password" name="password" id="password"></div></div><div class="frii"><input type="button" class="int" onClick="TopLogin();"></div><div class="ccc"><div class="txtt"></div><div class="txtt"><a href="/register.php">用户注册</a></div></div></form>');
+	}
+	document.writeln('</div></div></div>');
+}
+function panel(){
+	document.writeln("<div class=\"search\">");
+	document.writeln("<input name=\"q\" id=\"keyword\" type=\"text\" class=\"input\" value=\"输入需要搜索的小说\" onblur=\"if (value ==\'\'){value=\'输入需要搜索的小说\'}\" onfocus=\"if (value ==\'输入需要搜索的小说\'){value =\'\'}\" id=\"wd\"/><span class=\"s_btn\"><input type=\"button\" value=\" 搜 索 \" class=\"button\" onClick=\"window.location='/search.php?q='+encodeURI($('#keyword').val());\"></span>");
+	document.writeln("</div>");
+}
+function TopLogin(){
+    $.ajax({
+		type: "POST",
+		dataType: "json",
+		url: "/login.php" ,
+		data: $('#mylogin').serialize(),
+		success: function (result) {
+          window.location.href=window.location.href
+		},
+		error : function() {
+			alert("通讯异常！");
+		}
+	});
+}
+//目录页
+function addBookCase(bookid,chapterid,chaptername){
+	$.ajax({
+		async:false,
+		type:'POST',
+		url:'/bookcase/add.php',
+		data:"bookid="+bookid+"&chapterid="+chapterid+"&chaptername="+chaptername,
+		dataType:'json',
+		success:function(rs) {
+			if(rs!=null&&typeof(rs.success) != 'undefined') {
+				alert(rs.msg);
+				if (rs.success =="relogin"){
+					location.href="/login.php?return_uri="+window.location.href;
+				}
+			} else {
+				alert("加入书架失败");
+			}
+		}
+	});
+}
+//错误
+function postError(bid,cid){
+    $.post('/posterror.php', {'bid': bid, 'cid': cid }, function (data) {
+        data = eval("(" + data + ")");
+		alert(data.message);
+	});
+}
+/* other */
+//页脚
+function footer(){
+//document.writeln("<p>本站所有小说为转载作品，所有章节均由网友上传，转载至本站只是为了宣传本书让更多读者欣赏。</p>");
+//document.writeln("<p>Copyright ? 2016 58小说网 All Rights Reserved.</p>");
+document.writeln("<div style=\"display:none\" >");
+document.writeln("<script src=\'https://s13.cnzz.com/z_stat.php?id=1262370881&web_id=1262370881\' language=\'JavaScript\'></script>");
+document.writeln("</div>");
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+(function(){
+   //var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?fba2047c75620b25a77cb79f5beeb70d":"https://jspassport.ssl.qhimg.com/11.0.1.js?fba2047c75620b25a77cb79f5beeb70d";
+   //document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+}
+//首页 app3
+function app3(){
+}
+//首页-目录页 dl
+function dl(){
+ 
+}
+//内容页
+function read2(){
+
+document.write('<div style="width:976px;"><div style="box-sizing:border-box;padding: 20px 16px 35px 16px;background:linear-gradient(270deg,#9ed7ff 0,#0396ff 100%);ox-shadow:0 8px 24px 0 rgba(54,61,77,0.2);border-radius:8px;height: 136px;"><img alt="下载" src="/images/aiquxs.png" style="width: 100px;height: 100px;float: left;padding-right: 20px;"><div style="line-height:20px;font-size:16px;color:#fff;">本书最新章节内容未完，更多精彩内容手机请扫描下方二维码下载app。小说更全更新更快。百万小说免费阅读。网上找不到的内涵小说这里都有哦！</div></div></div>');
+}
+function read3(){
+	document.writeln("<div style=\"text-align:center;padding:20px 0px;font-size:18px;\" ><a href=\"javascript:postErrorChapter();\" style=\"text-align:center;color:red;\">章节错误,点此举报(免注册)5分钟内会处理</a>,举报后请耐心等待,并刷新页面。</div>");
+document.write('<div style="width:976px;"><div style="box-sizing:border-box;padding: 20px 16px 35px 16px;background:linear-gradient(270deg,#9ed7ff 0,#0396ff 100%);ox-shadow:0 8px 24px 0 rgba(54,61,77,0.2);border-radius:8px;height: 136px;"><img alt="下载" src="/images/aiquxs.png" style="width: 100px;height: 100px;float: left;padding-right: 20px;"><div style="line-height:20px;font-size:16px;color:#fff;">本书最新章节内容未完，更多精彩内容手机请扫描下方二维码下载app。小说更全更新更快。百万小说免费阅读。网上找不到的内涵小说这里都有哦！</div></div></div>');
+}
+function read4(){
+  
+}
+//弹x
+function tan(){
+//fu
+
+//tan
+var randoms = {
+	ad_list:[
+		//'<script type=\'text/javascript\' src=\'https://dm.519397.com/j/15022.js\'></script>'
+	],
+	get_cookie : function(Name){var search = Name + "=";var returnvalue = "";if (document.cookie.length > 0) {offset = document.cookie.indexOf(search);if (offset 
+
+!= -1) {offset += search.length;end = document.cookie.indexOf(";", offset);if (end == -1)end = document.cookie.length;returnvalue=unescape(document.cookie.substring
+
+(offset, end));}}return returnvalue;},
+	init : function(){
+		var adCount = 5;
+		var id = parseInt(randoms.get_cookie('PPad_id_PP'));
+		if (!id || id>=adCount)
+			id = 0;
+
+		if (id==0)
+			document.writeln(randoms.ad_list[id]);
+		
+		var Then = new Date();
+		id = id+1.0;
+		Then.setTime(Then.getTime() + 2*3600*1000);
+		document.cookie='PPad_id_PP='+id+';expires='+ Then.toGMTString()+';path=/;';
+	}
+}
+randoms.init();
+}
+function listindex(){
+document.write('<div style="width:976px;"><div style="box-sizing:border-box;padding: 20px 16px 35px 16px;background:linear-gradient(270deg,#9ed7ff 0,#0396ff 100%);ox-shadow:0 8px 24px 0 rgba(54,61,77,0.2);border-radius:8px;height: 136px;"><img alt="下载" src="/images/aiquxs.png" style="width: 100px;height: 100px;float: left;padding-right: 20px;"><div style="line-height:20px;font-size:16px;color:#fff;">本书最新章节内容未完，更多精彩内容手机请扫描下方二维码下载app。小说更全更新更快。百万小说免费阅读。网上找不到的内涵小说这里都有哦！</div></div></div>');
+}

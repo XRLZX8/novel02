@@ -1,0 +1,51 @@
+
+var ls=localStorage;
+function AddbookMarket(bookid,bookname,chapterid,chaptername,sortname,author,bookurl,chapterurl){
+	var myDate=new Date();
+	var row={
+		bookid:bookid,
+		bookname:bookname,
+		chapterid:chapterid,
+		chaptername:chaptername,
+		sortname:sortname,
+		author:author,
+		bookurl:bookurl,
+		chapterurl:chapterurl,
+		updatetime:myDate.getFullYear()+"/"+(myDate.getMonth()+1)+"/"+myDate.getDate()
+	}
+	ls.setItem("bookid"+bookid,JSON.stringify(row));
+	//alert(myDate.getFullYear()+"/"+(myDate.getMonth()+1)+"/"+myDate.getDate());
+}
+function showAll(){
+	for(var i=0;i<ls.length;i++){
+		var key=ls.key(i);
+		if (key.indexOf("bookid") == -1){
+			continue
+		}
+		
+		row=ls.getItem(key)
+		obj=JSON.parse(row)
+		id=i+1
+		document.write("<li><span class=\"s1\">"+id+"</span>");
+		document.write("<span class=\"s2\"><a href=\""+obj.bookurl+"\" target=\"_blank\">"+obj.bookname+"</a></span>");
+		document.write("<span class=\"s3\"><a href=\""+obj.chapterurl+"\" target=\"_blank\">"+obj.chaptername+"</a></span>");
+		document.write("<span class=\"s4\">"+obj.author+"</span>");
+		document.write("<span class=\"s5\"><a  href=\""+obj.bookurl+"\" target=\"_blank\"></a></span><span class=\"s6\">"+obj.updatetime+"</span>");
+		document.write("<span class=\"s6\"><a onclick=\"deltempbookcase('"+key+"')\" href=\"#\"><font color=\"#ff0000\">删除</font></a> </span>");
+		document.write("</li>");
+	}
+}
+function deltempbookcase(key){
+	ls.removeItem(key)
+	window.location.reload()
+}
+function emptytempbookcase(key){
+	for(var i=0;i<ls.length;i++){
+		var key=ls.key(i);
+		if (key.indexOf("bookid") == -1){
+			continue
+		}
+		ls.removeItem(key)
+	}
+	window.location.reload()
+}
